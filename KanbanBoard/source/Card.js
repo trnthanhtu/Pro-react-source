@@ -44,7 +44,9 @@ class Card extends Component {
           <div className="card__title">{this.props.title}</div>
            <div className="card__details">
              <spam dangerouslySetInnerHTML={{__html:marked(this.props.description)}} />
-           <CheckList cardId={this.props.id} tasks={this.props.tasks} taskCallbacks={this.props.taskCallbacks}/>
+           <CheckList cardId={this.props.id}
+            tasks={this.props.tasks}
+            taskCallbacks={this.props.taskCallbacks}/>
           </div>
         </div>
       );
