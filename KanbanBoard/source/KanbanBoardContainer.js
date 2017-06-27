@@ -7,19 +7,19 @@ import update from 'react-addons-update';
 const API_URL = 'http://kanbanapi.pro-react.com'
 const API_HEADERS = {
   'Content-Type': 'application/json',
-  'Authorization': 'tuttt'
+  'Authorization': 'tutt'
 }
 
 class KanbanBoardContainer extends Component {
   constructor(){
-    super();
+    super(...arguments);
     this.state = {
       cards: []
     }
   }
 
   componentDidMount(){
-    fetch(API_URL+'/cards', {header: API_HEADER})
+    fetch(API_URL+'/cards', {headers: API_HEADERS})
     .then((response) => response.json())
     .then((responseData) => {
       this.setState({
@@ -32,6 +32,7 @@ class KanbanBoardContainer extends Component {
   }
 
   addTask(cardId, taskName) {
+    let prevState = this.state;
     // Find the index of the card
     let cardIndex = this.state.cards.findIndex((card) => card.id == cardId);
 
@@ -46,20 +47,31 @@ class KanbanBoardContainer extends Component {
     });
 
     // set the component state to the mutated object
-    this.setState({cards: nextState});
+    this.setState({cards:nextState});
 
     // Call the API to add the task on the server
-    fetch(`${API_URL}/cards/${cardId}/task`,{
+    fetch(`${API_URL}/cards/${cardId}/tasks`,{
       method: 'post',
       headers: API_HEADERS,
       body: JSON.stringify(newTask)
     })
-    .then((response) => response.json())
+    .then((response) => {
+      // response.json()
+      if(response.ok){
+        return response.json()
+      } else {
+        // Throw an error if server response wasn't 'ok'
+        throw new Error("Sever response wasn't ok")
+      }
+    })
     .then((responseData) => {
       // When the server return the definitive ID
       // used for the new Task on the server, update it on React
       newTask.id= responseData.id
       this.setState({cards:nextState})
+    })
+    .catch((error) => {
+      this.setState(prevState);
     });
   }
 
@@ -68,6 +80,8 @@ class KanbanBoardContainer extends Component {
     let cardIndex = this.state.cards.findIndex(
       (card) => card.id == cardId
     )
+
+    let prevState = this.state;
 
     // Create a new object without the task
     let nextState = update(this.state.cards, {
@@ -84,9 +98,20 @@ class KanbanBoardContainer extends Component {
       method: 'delete',
       headers: API_HEADERS
     })
+    .then((response) => {
+      if(!response.ok) {
+        throw new Error("Server response wasn't OK")
+      }
+    })
+    .catch((error) => {
+      console.error("Fetch error:", error)
+      this.setState(prevState);
+    })
   }
 
   toggleTask(cardId, taskId, taskIndex) {
+    let prevState = this.state;
+
     // Find the index of the card
     let cardIndex = this.state.cards.findIndex(
       (card) => (card.id) == cardId
@@ -120,6 +145,15 @@ class KanbanBoardContainer extends Component {
      headers: API_HEADERS,
      body: JSON.stringify({done:newDoneValue})
    })
+   .then((response) => {
+      if (!response.ok) {
+        throw new Error("Server response wasn't ok")
+      }
+   })
+   .catch((error) => {
+      console.log("Fetch error:", error)
+      this.setState(prevState);
+   });
 
   }
 
