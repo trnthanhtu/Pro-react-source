@@ -1,1 +1,4 @@
-## tóm tắt chương 1
+install ReactCSSTransitionGroup:  
+```
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+```
